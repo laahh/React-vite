@@ -21,7 +21,7 @@ const Body = (props) => {
   return (
     <div className="mt-4 px-5 pb-5">
       <a href="#">
-        <h5 className="text-xl tracking-tight text-white">{name}</h5>
+        <h5 className="text-xl tracking-tight text-white">{name.substring(0, 20)}...</h5>
       </a>
       <div className="mt-2 mb-2 flex items-center justify-between">
         <p>
@@ -38,7 +38,7 @@ const Footer = (props) => {
   return (
     <div className="px-5 pb-5">
       <div>
-        <p className="text-white mb-3">{description}</p>
+        <p className="text-white mb-3">{description.substring(0, 70)}</p>
       </div>
       <Button
         onClick={() => handleAddToCart(id)}

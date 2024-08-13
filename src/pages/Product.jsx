@@ -1,31 +1,32 @@
 import Button from "../components/Elements/Buttton/Button";
 import CardProduct from "../components/Fragments/CardProduct";
 import { react, useState, useEffect } from "react";
+import { getProducts } from "../services/product.service";
 
-// data Products
-const Products = [
-  {
-    id: 1,
-    name: "Sepatu1",
-    price: 10.0,
-    image: "images/shoes.jpg",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 2,
-    name: "Sepatu2",
-    price: 20.0,
-    image: "images/shoes.jpg",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 3,
-    name: "Sepatu3",
-    price: 20.0,
-    image: "images/shoes.jpg",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-];
+// data products
+// const products = [
+//   {
+//     id: 1,
+//     name: "Sepatu1",
+//     price: 10.0,
+//     image: "images/shoes.jpg",
+//     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//   },
+//   {
+//     id: 2,
+//     name: "Sepatu2",
+//     price: 20.0,
+//     image: "images/shoes.jpg",
+//     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//   },
+//   {
+//     id: 3,
+//     name: "Sepatu3",
+//     price: 20.0,
+//     image: "images/shoes.jpg",
+//     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+//   },
+// ];
 
 // mengambil email dari local storage
 const email = localStorage.getItem("email");
@@ -34,19 +35,26 @@ const ProductPage = () => {
   // use state cart
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState([]);
+  const [products, setProduct] = useState([]);
 
   // useEffect Cart digunakan untuk menyimpan data keranjang belanja seperti id dan qty
   useEffect(() => {
     setCart(JSON.parse(localStorage.getItem("cart")) || []);
   }, []);
 
+  useEffect(() => {
+    getProducts((data) => {
+      setProduct(data);
+    });
+  }, []);
+
   // useEffect untuk menambahkan totalPrice dari chart
   useEffect(() => {
-    if (cart.length > 0) {
+    if (products.length > 0 && cart.length > 0) {
       // menggunakan reduce untuk menambahkan totalPrice dari chart
       const sum = cart.reduce((accumulator, item) => {
         // menggunakan find untuk menemukan product berdasarkan id item
-        const product = Products.find((product) => product.id === item.id);
+        const product = products.find((product) => product.id === item.id);
         // menggunakan accumulator untuk menambahkan totalPrice dari chart dengan product.price * item.qty
         return accumulator + product.price * item.qty;
       }, 0);
@@ -55,7 +63,7 @@ const ProductPage = () => {
       // digunakan untuk menyimpan data keranjang ke local storage
       localStorage.setItem("cart", JSON.stringify(cart));
     }
-  }, [cart]);
+  }, [cart, products]);
 
   // useState Cart digunakan untuk menyimpan data keranjang belanja seperti id dan qty
   const handleAddToCart = (id) => {
@@ -73,10 +81,10 @@ const ProductPage = () => {
   };
 
   // Menghitung total keseluruhan
-  const total = cart.reduce((accumulator, item) => {
-    const product = Products.find((product) => product.id === item.id);
-    return accumulator + product.price * item.qty;
-  }, 0); // Mulai dengan total 0
+  // const total = cart.reduce((accumulator, item) => {
+  //   const product = products.find((product) => product.id === item.id);
+  //   return accumulator + product.price * item.qty;
+  // }, 0); // Mulai dengan total 0
 
   const handleLogout = () => {
     // remove local storage
@@ -189,13 +197,14 @@ const ProductPage = () => {
 
       <div className="flex justify-center mt-5 mx-5">
         <div className="flex gap-3 w-3/4 flex-wrap">
-          {Products.map((product) => (
-            <CardProduct key={product.id}>
-              <CardProduct.Header gambar={product.image}></CardProduct.Header>
-              <CardProduct.Body price={product.price} name={product.name} />
-              <CardProduct.Footer id={product.id} handleAddToCart={handleAddToCart} description={product.description} />
-            </CardProduct>
-          ))}
+          {products.length > 0 &&
+            products.map((product) => (
+              <CardProduct key={product.id}>
+                <CardProduct.Header gambar={product.image}></CardProduct.Header>
+                <CardProduct.Body price={product.price} name={product.title} />
+                <CardProduct.Footer id={product.id} handleAddToCart={handleAddToCart} description={product.description} />
+              </CardProduct>
+            ))}
         </div>
         <div className="w-1/4">
           <h3 className="text-black text-xl">Chart</h3>
@@ -217,26 +226,27 @@ const ProductPage = () => {
               </tr>
             </thead>
             <tbody>
-              {cart.map((item) => {
-                // mengambil data product yang sama dengan id yang ada di cart
-                const product = Products.find((product) => product.id === item.id);
-                return (
-                  <tr>
-                    <td scope="col" className="px-6 py-3">
-                      {product.name}
-                    </td>
-                    <td scope="col" className="px-6 py-3">
-                      {product.price}
-                    </td>
-                    <td scope="col" className="px-6 py-3">
-                      {item.qty}
-                    </td>
-                    <td scope="col" className="px-6 py-3">
-                      {product.price * item.qty}
-                    </td>
-                  </tr>
-                );
-              })}
+              {products.length > 0 &&
+                cart.map((item) => {
+                  // mengambil data product yang sama dengan id yang ada di cart
+                  const product = products.find((product) => product.id === item.id);
+                  return (
+                    <tr>
+                      <td scope="col" className="px-6 py-3">
+                        {product.title}
+                      </td>
+                      <td scope="col" className="px-6 py-3">
+                        {product.price}
+                      </td>
+                      <td scope="col" className="px-6 py-3">
+                        {item.qty}
+                      </td>
+                      <td scope="col" className="px-6 py-3">
+                        {product.price * item.qty}
+                      </td>
+                    </tr>
+                  );
+                })}
               <tr>
                 <td colSpan="3" className="px-6 py-3 text-right">
                   <strong>Total:</strong>
