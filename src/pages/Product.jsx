@@ -37,24 +37,24 @@ const ProductPage = () => {
 
   // useEffect Cart digunakan untuk menyimpan data keranjang belanja seperti id dan qty
   useEffect(() => {
-    setCart([
-      { id: 1, qty: 1 },
-      { id: 2, qty: 1 },
-      { id: 3, qty: 1 },
-    ]);
+    setCart(JSON.parse(localStorage.getItem("cart")) || []);
   }, []);
 
   // useEffect untuk menambahkan totalPrice dari chart
   useEffect(() => {
-    // menggunakan reduce untuk menambahkan totalPrice dari chart
-    const sum = cart.reduce((accumulator, item) => {
-      // menggunakan find untuk menemukan product berdasarkan id item
-      const product = Products.find((product) => product.id === item.id);
-      // menggunakan accumulator untuk menambahkan totalPrice dari chart dengan product.price * item.qty
-      return accumulator + product.price * item.qty;
-    }, 0);
+    if (cart.length > 0) {
+      // menggunakan reduce untuk menambahkan totalPrice dari chart
+      const sum = cart.reduce((accumulator, item) => {
+        // menggunakan find untuk menemukan product berdasarkan id item
+        const product = Products.find((product) => product.id === item.id);
+        // menggunakan accumulator untuk menambahkan totalPrice dari chart dengan product.price * item.qty
+        return accumulator + product.price * item.qty;
+      }, 0);
 
-    setTotalPrice(sum);
+      setTotalPrice(sum);
+      // digunakan untuk menyimpan data keranjang ke local storage
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
   }, [cart]);
 
   // useState Cart digunakan untuk menyimpan data keranjang belanja seperti id dan qty
@@ -83,6 +83,7 @@ const ProductPage = () => {
     localStorage.clear();
     window.location.href = "/login";
   };
+
   return (
     <>
       <nav className="bg-white border-gray-200 dark:bg-gray-900">
